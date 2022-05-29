@@ -85,7 +85,7 @@ class Solar:
 
 
     def day_length(self, time):
-        print(time)
+
         if int(self.time.hour) % 24 == 0:
             lat = self.latitude
             d = self.declination_angle
@@ -99,7 +99,7 @@ class Solar:
             #day = timedelta(seconds=day)
             return day
         else:
-            return 0
+            return None
 
 
     def azimuth(self):

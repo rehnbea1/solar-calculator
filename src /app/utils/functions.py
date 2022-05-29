@@ -1,7 +1,7 @@
-from pandas import Timestamp, to_timedelta, DataFrame, concat
+from pandas import Timestamp, to_timedelta, DataFrame
 from datetime import datetime
 from calculator import Solar
-from numpy import floor
+from timeit import default_timer as timer
 
 
 def get_year():
@@ -40,7 +40,8 @@ def calculate(row):
 
 
 def run_calculator():
-
+    start = timer()
+    print('Calculator started')
     summary_df = get_year()
     list = []
     [list.append(calculate(row)) for row in summary_df.index]
@@ -51,6 +52,10 @@ def run_calculator():
 
     sunseconds = (summary_df['day_length'].sum())
     sunhours =  sunseconds/3600
+
+    print('Calculator run sucessfully')
+    end = timer()
+    print('Running time:', start)
     return
 
 
