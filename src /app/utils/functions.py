@@ -1,6 +1,7 @@
 from pandas import Timestamp, to_timedelta, DataFrame, concat
 from datetime import datetime
 from calculator import Solar
+from numpy import floor
 
 
 def get_year():
@@ -18,37 +19,39 @@ def get_year():
 
     return year_df
 
-def calculate(row):
 
-    irradiation = None  # Egal for now, function not yet implemented, hardcoded above
+def calculate(row):
+    #Input necessary settings here
+
+    #–––––––––––––––––––––––––––––
+
+    irradiation = None #None if no info is given
     country = 'Portugal, Lisbon'
     hemisphere = 'N'
-    latitude = 45  # Lisbon
-    time = str(row)
+    latitude = 40 # Lisbon
+    time = str(row) #None if no time is given
 
-    #str(row) # Fill in 0 if no time is given, it will calculate for today
+    #–––––––––––––––––––––––––––––
 
     object = Solar(irradiation,country,hemisphere,latitude,time)
     result = object.result()
+
     return result
 
-def solar_output(year_df):
+
+def run_calculator():
+
+    summary_df = get_year()
     list = []
-    [list.append(calculate(row)) for row in year_df.index]
+    [list.append(calculate(row)) for row in summary_df.index]
 
     solar = DataFrame(list)
     solar = solar.set_index('time')
-    year_df = year_df.join(solar, how='left')
+    summary_df = summary_df.join(solar, how='left')
 
-    return year_df
-
-def get_solar_table():
-
-    year_df = get_year()
-    output = solar_output(year_df)
-
+    sunseconds = (summary_df['day_length'].sum())
+    sunhours =  sunseconds/3600
     return
 
 
-
-get_solar_table()
+run_calculator()

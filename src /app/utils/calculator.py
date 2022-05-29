@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
-from numpy import sin,cos,tan,arccos,arcsin, floor, pi, deg2rad, rad2deg
+from numpy import sin,cos,tan,arccos,arcsin, floor, pi, deg2rad, rad2deg,round_
 from pandas import to_datetime
-from sympy import symbols, Eq, solve
 
 #Använd pandas/numpy räknare istället
 from timeit import default_timer as timer
@@ -26,14 +25,16 @@ class Solar:
 
         self.solar_altitude_angle = self.solar_altitude_angle() #10-3!!!
 
-        self.day_length = self.day_length()#10*-3
-
         self.azimuth = self.azimuth() #10*-3, 0,006
 
         self.sun_interval = self.sun_interval() #0,5-0,13s
 
+        self.day_length = self.day_length(self.time)
+
+
+
     def time(self, time):
-        if time == 0:
+        if time == None:
             #print('no time given')
             return datetime.now()
         else:
@@ -42,6 +43,7 @@ class Solar:
 
     def country_irradiance(self, irradiance, country):
         if irradiance == None:
+            #print('no irradiance given')
             return 500
         else:
             return irradiance
@@ -82,17 +84,22 @@ class Solar:
         return altitude_angle
 
 
-    def day_length(self):
-
-        lat = self.latitude
-        d = self.declination_angle
-        a = round(2/15,3)
-        acos_param = arccos((-tan(lat)*tan(d)))
-        acos_param = rad2deg(acos_param)
-        day_length = a*acos_param
-        day = timedelta(hours=day_length)
-
-        return day
+    def day_length(self, time):
+        print(time)
+        if int(self.time.hour) % 24 == 0:
+            lat = self.latitude
+            d = self.declination_angle
+            a = round(2/15,3)
+            acos_param = arccos((-tan(lat)*tan(d)))
+            acos_param = rad2deg(acos_param)
+            day_length = a*acos_param
+            hours = int(floor(day_length))
+            minutes = int((day_length-hours)*60)
+            day = ((3600*hours) + (60*minutes))
+            #day = timedelta(seconds=day)
+            return day
+        else:
+            return 0
 
 
     def azimuth(self):
