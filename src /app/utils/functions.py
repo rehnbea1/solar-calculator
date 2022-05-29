@@ -24,7 +24,7 @@ def calculate(row):
     country = 'Portugal, Lisbon'
     hemisphere = 'N'
     latitude = 40  # Lisbon
-    time = str(row)
+    time = '2022-12-16 09:00:00'
 
     #str(row) # Fill in 0 if no time is given, it will calculate for today
 
@@ -35,10 +35,12 @@ def calculate(row):
 
 def solar_output(year_df):
     for row in year_df.index:
-
         var = calculate(row)
     print('done')
     return
+
+
+
 
 def get_solar_table():
 
