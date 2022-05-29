@@ -1,4 +1,4 @@
-from pandas import Timestamp, to_timedelta, DataFrame
+from pandas import Timestamp, to_timedelta, DataFrame, concat
 from datetime import datetime
 from calculator import Solar
 
@@ -20,27 +20,27 @@ def get_year():
 
 def calculate(row):
 
-    irradiation = 0  # Egal for now, function not yet implemented, hardcoded above
+    irradiation = None  # Egal for now, function not yet implemented, hardcoded above
     country = 'Portugal, Lisbon'
     hemisphere = 'N'
-    latitude = 40  # Lisbon
-    time = '2022-12-16 09:00:00'
+    latitude = 45  # Lisbon
+    time = str(row)
 
     #str(row) # Fill in 0 if no time is given, it will calculate for today
 
     object = Solar(irradiation,country,hemisphere,latitude,time)
     result = object.result()
-
     return result
 
 def solar_output(year_df):
-    for row in year_df.index:
-        var = calculate(row)
-    print('done')
-    return
+    list = []
+    [list.append(calculate(row)) for row in year_df.index]
 
+    solar = DataFrame(list)
+    solar = solar.set_index('time')
+    year_df = year_df.join(solar, how='left')
 
-
+    return year_df
 
 def get_solar_table():
 

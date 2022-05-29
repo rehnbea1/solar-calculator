@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
-from numpy import sin,cos,tan,arccos,arcsin, floor, pi, deg2rad, rad2deg,round_
+from numpy import sin,cos,tan,arccos,arcsin, floor, pi, deg2rad, rad2deg
+from pandas import to_datetime
 from sympy import symbols, Eq, solve
 
 #Använd pandas/numpy räknare istället
@@ -7,7 +8,7 @@ from timeit import default_timer as timer
 
 class Solar:
 
-    def __init__(self, irradiation, country, hemisphere, latitude, time):
+    def __init__(self, irradiance, country, hemisphere, latitude, time):
 
         self.country = country
 
@@ -17,7 +18,7 @@ class Solar:
 
         self.time = self.time(time) #4,04-4,5*10-5
 
-        self.irradiation = self.country_irradiance(self.country) #10*-6
+        self.irradiation = self.country_irradiance(irradiance,self.country) #10*-6
 
         self.declination_angle = self.declination_angle() #6/7*10-6
 
@@ -39,8 +40,11 @@ class Solar:
             return datetime.strptime(time, '%Y-%m-%d %H:%M:%S')
 
 
-    def country_irradiance(self, country):
-        return 500
+    def country_irradiance(self, irradiance, country):
+        if irradiance == None:
+            return 500
+        else:
+            return irradiance
 
 
     def solar_hour_angle(self):
@@ -60,8 +64,7 @@ class Solar:
         #declination angle = ∂
 
         tilt = 23.45
-        #N = self.time.timetuple().tm_yday
-        N = 320
+        N = self.time.timetuple().tm_yday
         sin_obj = deg2rad((360/365)*(284+N))
         declination_angle = deg2rad(tilt*sin(sin_obj))
 
@@ -80,16 +83,16 @@ class Solar:
 
 
     def day_length(self):
+
         lat = self.latitude
         d = self.declination_angle
         a = round(2/15,3)
-        acos_param = arccos((-tan(deg2rad(lat))*tan(deg2rad(d))))
+        acos_param = arccos((-tan(lat)*tan(d)))
         acos_param = rad2deg(acos_param)
         day_length = a*acos_param
-        hours = floor(day_length)
-        minutes = round((day_length-hours)*60)
-        #kolla
-        return '%s:%s' % (hours, minutes)
+        day = timedelta(hours=day_length)
+
+        return day
 
 
     def azimuth(self):
@@ -97,7 +100,6 @@ class Solar:
         # Azimuth is 0 at noon, negative before noon and positive after noon
 
         try:
-
             d = self.declination_angle
             h = self.solar_hour_angle
             a = self.solar_altitude_angle
@@ -125,22 +127,20 @@ class Solar:
         # sunset when cos(h) = -tanL*tan(d)
         # calc right-side
         # alfa
+
+
         lat = self.latitude
         d = self.declination_angle
+        angle = rad2deg(arccos(-tan(lat)*tan(d)))
 
-        h = arccos(-(tan(lat) * tan(d)))
-        solution = [1,2]
-        solution[1] = solution[1] - 2 * pi
+        h = [angle/15, -angle/15]
+        sunrise = 12 - h[0]
+        sunset = 12- h[1]
 
-        sunrise =  12 - rad2deg(solution[0])/15
-        hours = floor(sunrise)
-        minutes = (sunrise - hours) * 60
-        sunrise = '%s:%s' % (hours, minutes)
-        sunset =  12 - rad2deg(solution[1])/15
-        hours = floor(sunset)
-        minutes = (sunset - hours) * 60
-        sunset = '%s:%s' % (hours, minutes)
-        return [sunrise,sunset]
+        sunrise = timedelta(hours = sunrise)
+        sunset = timedelta(hours=sunset)
+
+        return[sunrise,sunset]
 
 
     def __repr__(self):
